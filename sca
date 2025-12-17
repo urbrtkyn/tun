@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+import socket
+import time
+import random
+import sys
+
+def scan_445(host, timeout=1.0):
+    port = 445
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(timeout)
+    try:
+        s.connect((host, port))
+        s.close()
+        return True
+    except (socket.timeout, socket.error):
+        return False
+
+def main():
+    # Si pasas argumentos: base_ip inicio fin
+    if len(sys.argv) == 4:
+        base  = sys.argv[1]          # ej: 10.0.0.
+        start = int(sys.argv[2])     # ej: 10
+        end   = int(sys.argv[3])     # ej: 50
+    else:
+        # Modo interactivo
+        base  = input("Base IP (ej 10.0.0.): ").strip()
+        start = int(input("Host inicio (ej 10): ").strip())
+        end   = int(input("Host fin    (ej 50): ").strip())
+
+    for i in range(start, end + 1):
+        ip = f"{base}{i}"
+        if scan_445(ip, timeout=1.5):
+            print(f"[+] {ip}:445 ABIERTO")
+        else:
+            print(f"[-] {ip}:445 CERRADO")
+
+        # Sleep aleatorio 1–5 s para hacerlo más sigiloso
+        delay = random.uniform(1.0, 5.0)
+        time.sleep(delay)
+
+if __name__ == "__main__":
+    main()
